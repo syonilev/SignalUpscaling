@@ -10,9 +10,9 @@ from boundary_conditions import Sides, BoundaryConditions, BoundaryConditions2D
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Boundary:
-    def __init__(self, inside: np.ndarray, ghost: np.ndarray, h: float):
-        self.inside = inside
+    def __init__(self, ghost: np.ndarray, inside: np.ndarray, h: float):
         self.ghost = ghost
+        self.inside = inside
         self.h = h
 
     def get_derivative(self):

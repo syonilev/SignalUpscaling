@@ -1,7 +1,6 @@
 import cv2
 from typing import Optional, Dict
 import numpy as np
-from scipy.signal import convolve2d
 from abc import ABC, abstractmethod
 from enum import Enum
 
