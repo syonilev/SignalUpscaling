@@ -1,9 +1,9 @@
 import cv2
 import numpy as np
 from scipy.signal import convolve2d
-from boundary.boundary import Boundaries2D
+from boundary.boundaries_2d import Boundaries2D
 from common import NP_FLOAT32
-from grid.grid_base import Grid
+from grid.grid_base import Grid, damping_factor_formula
 
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -18,8 +18,7 @@ def kernel_2d():
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Grid2D(Grid):
     dim = 2
-    two_dim = 2 * dim
-    damping_factor = two_dim / (two_dim + 1)
+    damping_factor = damping_factor_formula(dim)
 
     kernel = kernel_2d()
 
@@ -46,19 +45,12 @@ class Grid2D(Grid):
     def neighbors_sum(self):
         return convolve2d(self.solution, self.kernel, mode="valid")
 
-    def smooth(self, f: np.ndarray):
-        w = self.damping_factor
-
-        sol_new = (self.neighbors_sum - self.h_squared * f) / self.two_dim
-        self.solution_valid = (1 - w) * self.solution_valid + w * sol_new
-
     @property
     def integrals(self):
         return self.resize(self.solution_valid, self.orig_wh)
 
-    def enforce_integral_constraints(self, integral_constraints):
-        integrals_diff = integral_constraints - self.integrals
-        self.solution_valid += self.resize(integrals_diff, self.grid_valid_wh)
+    def resize_integrals_to_grid_valid(self, integrals: np.ndarray):
+        return self.resize(integrals, self.grid_valid_wh)
 
     @classmethod
     def resize(cls, arr: np.ndarray, wh: tuple):

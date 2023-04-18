@@ -6,10 +6,16 @@ from abc import ABC, abstractmethod
 
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class Grid(ABC):
-    dim = 0
+def damping_factor_formula(dim: int):
     two_dim = 2 * dim
     damping_factor = two_dim / (two_dim + 1)
+    return damping_factor
+
+
+# //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class Grid(ABC):
+    dim = 0
+    damping_factor = damping_factor_formula(dim)
 
     kernel = None
 
@@ -50,9 +56,11 @@ class Grid(ABC):
     def neighbors_sum(self):
         pass
 
-    @abstractmethod
     def smooth(self, f: np.ndarray):
-        pass
+        w = self.damping_factor
+
+        sol_new = (self.neighbors_sum - self.h_squared * f) / (2 * self.dim)
+        self.solution_valid = (1 - w) * self.solution_valid + w * sol_new
 
     @property
     @abstractmethod
@@ -60,8 +68,12 @@ class Grid(ABC):
         pass
 
     @abstractmethod
-    def enforce_integral_constraints(self, integral_constraints):
+    def resize_integrals_to_grid_valid(self, integrals: np.ndarray):
         pass
+
+    def enforce_integral_constraints(self, integral_constraints):
+        integrals_diff = integral_constraints - self.integrals
+        self.solution_valid += self.resize_integrals_to_grid_valid(integrals_diff)
 
     def relaxation(self, params: UpscalingParams):
         self.boundaries.set_boundary_condirions(params.boundary_conditions)
@@ -72,7 +84,7 @@ class Grid(ABC):
 
     @property
     def laplacian(self):
-        return (self.neighbors_sum - self.two_dim * self.solution_valid) / self.h_squared
+        return (self.neighbors_sum - 2 * self.dim * self.solution_valid) / self.h_squared
 
     def get_error_params(self, params: UpscalingParams):
         error_integrals = params.integral_constraints - self.integrals

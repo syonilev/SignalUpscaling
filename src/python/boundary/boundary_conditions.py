@@ -2,12 +2,7 @@ import cv2
 from typing import Optional, Dict
 import numpy as np
 from abc import ABC, abstractmethod
-from enum import Enum
-
-
-# //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class Sides(Enum):
-    LEFT, RIGHT, TOP, BOTTOM, BACK, FRONT = range(6)
+from common import Sides
 
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +37,8 @@ class BoundaryConditions1D(BoundaryConditions):
         super().__init__(boundary_conditions)
 
     def restrict(self) -> BoundaryConditions:
-        raise "!!! NOT IMPLEMENTED !!!"
+        values_restricted = {side: bc.copy() for side, bc in self.values.items()}
+        return BoundaryConditions1D(values_restricted)
 
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

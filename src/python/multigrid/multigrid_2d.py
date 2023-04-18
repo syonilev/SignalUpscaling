@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from boundary.boundary import Boundaries2D
+from boundary.boundaries_2d import Boundaries2D
 from grid.grid_2d import Grid2D
 from grid.grid_base import UpscalingParams
 from multigrid.multigrid_base import MultigridSolver
