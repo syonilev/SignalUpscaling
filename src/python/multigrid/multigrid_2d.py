@@ -1,17 +1,18 @@
 import cv2
 import numpy as np
-from boundary import Boundaries2D
-from grid.grid_2d import Grid2D, UpscalingParams
+from boundary.boundary import Boundaries2D
+from grid.grid_2d import Grid2D
+from grid.grid_base import UpscalingParams
 from multigrid.multigrid_base import MultigridSolver
 
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class MultigridSolver2D(MultigridSolver):
-    def __init__(self, wh: tuple, factor: int,
+    def __init__(self, shape: tuple, factor: int,
                  pre_relaxation_iters: int = 2,
                  post_relaxation_iters: int = 2):
 
-        super().__init__(wh, factor, pre_relaxation_iters, post_relaxation_iters)
+        super().__init__(shape, factor, pre_relaxation_iters, post_relaxation_iters)
         self.construct_grids()
         self.finsest_params = self.init_zero_params()
 
@@ -43,7 +44,7 @@ class MultigridSolver2D(MultigridSolver):
             self.grids[i].set_initial_guess()
 
         grid = self.finset_grid
-        initial_guess = Grid2D.resize(integral_constraints, grid.wh_grid_valid)
+        initial_guess = Grid2D.resize(integral_constraints, grid.grid_valid_wh)
         grid.set_initial_guess(initial_guess)
 
     def restrict(self, params_h: UpscalingParams):

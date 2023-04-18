@@ -1,11 +1,8 @@
-import cv2
-from typing import Optional, Dict
+from typing import Dict
 import numpy as np
-from scipy.signal import convolve2d
 from abc import ABC, abstractmethod
 
-from boundary_conditions import Sides, BoundaryConditions, BoundaryConditions2D
-
+from boundary.boundary_conditions import Sides, BoundaryConditions, BoundaryConditions2D
 
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,10 +35,6 @@ class Boundaries(ABC):
     @classmethod
     def create_boundaries(cls, solution: np.ndarray, h: float) -> Dict:
         pass
-
-    # @abstractmethod
-    # def set_derivative(self, boundary_conditions: BoundaryConditions):
-    #     pass
 
     @abstractmethod
     def get_boundary_conditions(self) -> BoundaryConditions:

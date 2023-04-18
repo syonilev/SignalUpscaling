@@ -1,6 +1,6 @@
 from typing import Optional
 import numpy as np
-from grid.grid_2d import Grid2D
+from grid.grid_base import Grid
 
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,6 +21,6 @@ class MultigridSolver:
         self.grids: Optional[list] = None
 
     @property
-    def finset_grid(self) -> Grid2D:
+    def finset_grid(self) -> Grid:
         return self.grids[-1]
 

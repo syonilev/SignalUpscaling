@@ -1,38 +1,38 @@
 import cv2
-from typing import Optional
 import numpy as np
 from scipy.signal import convolve2d
-from boundary import Boundaries2D
-from grid.upscaling_params import UpscalingParams
+from boundary.boundary import Boundaries2D
 from common import NP_FLOAT32
+from grid.grid_base import Grid
 
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class Grid2D:
-    dim = 2
-    two_dim = 2 * dim
-    damping_factor = two_dim / (two_dim + 1)
-
-    # kernel
+def kernel_2d():
     kernel = np.zeros((3, 3), dtype=NP_FLOAT32)
     kernel[1, :] = 1
     kernel[:, 1] = 1
     kernel[1, 1] = 0
+    return kernel
 
-    def __init__(self, wh_orig: tuple, factor: int):
-        self.factor = factor
-        self.h = 1 / factor
-        self.h_squared = self.h ** 2
-        self.coarse_grid = None
 
-        width, height = wh_orig
-        self.wh_orig = wh_orig
-        self.wh_grid_valid = (width * factor, height * factor)
-        self.solution = np.zeros((height * factor + 2, width * factor + 2), dtype=NP_FLOAT32)
-        self.boundaries = Boundaries2D.init_from_solution(self.solution, self.h)
+# //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class Grid2D(Grid):
+    dim = 2
+    two_dim = 2 * dim
+    damping_factor = two_dim / (two_dim + 1)
 
-    def set_initial_guess(self, initial_guess: Optional[np.ndarray] = None):
-        self.solution_valid = 0 if initial_guess is None else initial_guess
+    kernel = kernel_2d()
+
+    def __init__(self, shape: tuple, factor: int):
+        super().__init__(shape, factor)
+
+    def set_shapes(self, shape: tuple, factor: int):
+        super().set_shapes(shape, factor)
+        self.orig_wh = tuple(reversed(self.orig_shape))
+        self.grid_valid_wh = tuple(reversed(self.grid_valid_shape))
+
+    def create_boundaries(self):
+        return Boundaries2D.init_from_solution(self.solution, self.h)
 
     @property
     def solution_valid(self):
@@ -54,18 +54,11 @@ class Grid2D:
 
     @property
     def integrals(self):
-        return self.resize(self.solution_valid, self.wh_orig)
+        return self.resize(self.solution_valid, self.orig_wh)
 
     def enforce_integral_constraints(self, integral_constraints):
         integrals_diff = integral_constraints - self.integrals
-        self.solution_valid += self.resize(integrals_diff, self.wh_grid_valid)
-
-    def relaxation(self, params: UpscalingParams):
-        self.boundaries.set_boundary_condirions(params.boundary_conditions)
-
-        if self.coarse_grid is not None: # if not at lowest reslution
-            self.smooth(params.f)
-            self.enforce_integral_constraints(params.integral_constraints)
+        self.solution_valid += self.resize(integrals_diff, self.grid_valid_wh)
 
     @classmethod
     def resize(cls, arr: np.ndarray, wh: tuple):
@@ -76,14 +69,5 @@ class Grid2D:
         h, w = mat.shape
         return cls.resize(mat, (w // 2, h // 2))
 
-    @property
-    def laplacian(self):
-        return (self.neighbors_sum - self.two_dim * self.solution_valid) / self.h_squared
 
-    def get_error_params(self, params: UpscalingParams):
-        error_integrals = params.integral_constraints - self.integrals
-        error_f = params.f - self.laplacian
-        solution_bc = self.boundaries.get_boundary_conditions()
-        error_bc = params.boundary_conditions - solution_bc
-        return UpscalingParams(error_f, error_integrals, error_bc)
 

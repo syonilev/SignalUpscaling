@@ -20,8 +20,8 @@ class SignalUpscaling2D:
             h, w, c = img.shape
         return h, w, c
 
-    def init_solver(self, wh, factor):
-        return MultigridSolver2D(wh, factor,
+    def init_solver(self, shape, factor):
+        return MultigridSolver2D(shape, factor,
                                  pre_relaxation_iters=self.pre_relaxation_iters,
                                  post_relaxation_iters=self.post_relaxation_iters)
 
@@ -39,7 +39,7 @@ class SignalUpscaling2D:
             img = img.astype(NP_FLOAT32)
 
         h, w, c = self.get_hwc(img)
-        solver = self.init_solver((w, h), factor)
+        solver = self.init_solver((h, w), factor)
         upscaled_img = self.apply_solver(solver, img, c)
 
         if img_dtype != NP_FLOAT32:
@@ -49,28 +49,4 @@ class SignalUpscaling2D:
         return upscaled_img
 
 
-def load_image(image_path):
-    image = cv2.imread(image_path)
-    if len(image.shape) == 3:
-        return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    return image
-
-# if __name__ == "__main__":
-#     imp="/home/cg5/Yoni/Personal/Search/Bosch/aerial.jpg"
-#     img=load_image(imp)[:100, :200]
-#
-#     # import matplotlib
-#     # import matplotlib.pyplot as plt
-#     #
-#     #
-#     # backend = 'TkAgg'
-#     # matplotlib.use(backend)
-#     # plt.figure()
-#     # plt.imshow(img)
-#     # plt.show(block=False)
-#
-#     su2d = SignalUpscaling2D(cycles_num = 4, pre_relaxation_iters = 2, post_relaxation_iters = 2)
-#     img_upscaled = su2d.process(img, factor=4)
-#
-#     aaa=1
 
