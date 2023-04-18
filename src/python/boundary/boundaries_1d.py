@@ -3,7 +3,7 @@ import numpy as np
 
 from boundary.boundary import Boundary
 from boundary.boundaries_base import Boundaries
-from boundary.boundary_conditions import Sides, BoundaryConditions1D
+from boundary.boundary_conditions_1d import Sides, BoundaryConditions1D
 
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
