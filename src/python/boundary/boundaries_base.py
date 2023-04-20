@@ -17,7 +17,7 @@ class Boundaries(ABC):
         boundaries = cls.create_boundaries(solution, h)
         return cls(boundaries)
 
-    def set_boundary_condirions(self, boundary_conditions: BoundaryConditions):
+    def set_boundary_conditions(self, boundary_conditions: BoundaryConditions):
         for side, boundary in self.boundaries.items():
             boundary.set_derivative(boundary_conditions.get_side(side))
 

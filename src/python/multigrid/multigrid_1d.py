@@ -1,14 +1,13 @@
-from boundary.boundaries_2d import Boundaries2D
-from grid.grid_2d import Grid2D
+from boundary.boundaries_1d import Boundaries1D
+from grid.grid_1d import Grid1D
 from multigrid.multigrid_base import MultigridSolver, MultigridParams
 
 
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class MultigridSolver2D(MultigridSolver):
-    grid_class = Grid2D
-    boundaries_class = Boundaries2D
+class MultigridSolver1D(MultigridSolver):
+    grid_class = Grid1D
+    boundaries_class = Boundaries1D
 
     def __init__(self, shape: tuple, mg_params: MultigridParams):
         super().__init__(shape, mg_params)
-
 

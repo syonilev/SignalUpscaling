@@ -1,4 +1,4 @@
-from typing import Optional, Dict
+from typing import Dict
 import numpy as np
 from abc import ABC, abstractmethod
 from common import Sides
@@ -8,18 +8,14 @@ from common import Sides
 class BoundaryConditions(ABC):
     sides = [Sides.LEFT, Sides.RIGHT]
 
-    def __init__(self, boundary_conditions: Optional[Dict[str, np.ndarray]] = None):
-        self.values = self.boundary_conditions_default if boundary_conditions is None else boundary_conditions
-
-    @property
-    def boundary_conditions_default(self):
-        return {side: None for side in self.sides}
+    def __init__(self, boundary_conditions: Dict[str, np.ndarray]):
+        self.values = boundary_conditions
 
     @abstractmethod
     def restrict(self) -> 'BoundaryConditions':
         pass
 
-    def get_side(self, side: Sides):
+    def get_side(self, side: Sides) ->np.ndarray:
         return self.values[side]
 
     def __sub__(self, other: 'BoundaryConditions') -> 'BoundaryConditions':

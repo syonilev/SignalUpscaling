@@ -14,7 +14,7 @@ class Boundaries1D(Boundaries):
     @classmethod
     def create_boundaries(cls, solution: np.ndarray, h: float) -> Dict:
         l = Boundary(solution[:1], solution[1:2], h)
-        r = Boundary(solution[-1:], solution[-1:-2], h)
+        r = Boundary(solution[-1:], solution[-2:-1], h)
         return {Sides.LEFT: l, Sides.RIGHT: r}
 
     def get_boundary_conditions(self) -> BoundaryConditions1D:
